@@ -12,7 +12,7 @@ import (
 	"github.com/unixpickle/wav"
 )
 
-func CutSoundFile(path string, CheckPoint []int) {
+func CutSoundFile(path string, CheckPoint []float64) {
 	//CheckPoint := [10]float64{0,1,2,3,4,5}
 	a, err := wav.ReadSoundFile(path)
 	if err != nil {

@@ -7,6 +7,7 @@ require (
 	cloud.google.com/go/speech v0.1.0 // indirect
 	cloud.google.com/go/storage v1.16.1
 	fyne.io/fyne/v2 v2.0.4 // indirect
+	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/bluele/mecab-golang v0.0.0-20180831023624-c8cfe04e87f9
 	github.com/blugelabs/bluge v0.1.7
 	github.com/blugelabs/bluge_segment_api v0.2.0
