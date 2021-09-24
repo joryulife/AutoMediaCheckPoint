@@ -2,6 +2,7 @@ package word
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 
 func ReturnKeyWords(texts []string) {
 	n := len(texts)
+	fmt.Println(n)
 	var Dec []string
 	D := texts
 	BoW := make([][]int, n)
@@ -35,8 +37,10 @@ func ReturnKeyWords(texts []string) {
 		panic(err)
 	}
 	CreateKOD(Dec, BoW, KeyOfDj)
-	OutKeyWordOfD(Dec, KeyOfDj, 0, 4)
-
+	for i := range texts {
+		s := OutKeyWordOfD(Dec, KeyOfDj, i, 5)
+		log.Println(s)
+	}
 }
 
 func CreateKOD(Dec []string, BoW [][]int, KeyOfDj [][]float64) {
@@ -47,7 +51,7 @@ func CreateKOD(Dec []string, BoW [][]int, KeyOfDj [][]float64) {
 	}
 }
 
-func OutKeyWordOfD(Dec []string, KeyOfDj [][]float64, Dj int, N int) {
+func OutKeyWordOfD(Dec []string, KeyOfDj [][]float64, Dj int, N int) []int {
 	RankIndex := make([]int, N)
 	for i := 0; i < N; i++ {
 		RankIndex[i] = 0
@@ -71,18 +75,22 @@ func OutKeyWordOfD(Dec []string, KeyOfDj [][]float64, Dj int, N int) {
 					RankValue[k] = RankValue[k-1]
 					RankIndex[k] = RankIndex[k-1]
 				}
+				if j == N-1 {
+					break
+				}
 				RankValue[j+1] = KeyOfDj[Dj][i]
 				RankIndex[j+1] = i
 				break
 			}
 		}
 	}
-	fmt.Println(RankValue)
-	fmt.Println(RankIndex)
+	//fmt.Println(RankValue)
+	//fmt.Println(RankIndex)
 	for i := range RankIndex {
 		fmt.Printf("%s ", Dec[RankIndex[i]])
 	}
 	fmt.Println("")
+	return RankIndex
 }
 
 func parseToDec(m *mecab.MeCab, text string, Dec []string, BoWj []int, lastindex *int) []string {
@@ -105,7 +113,7 @@ func parseToDec(m *mecab.MeCab, text string, Dec []string, BoWj []int, lastindex
 	for {
 		features := strings.Split(node.Feature(), ",")
 		if features[0] != BOSEOS {
-			if features[0] == "名詞" || features[0] == "動詞" || features[0] == "形容詞" {
+			if features[0] == "名詞" /*|| features[0] == "動詞" || features[0] == "形容詞" */ {
 				Text := strings.Split(node.Feature(), ",")
 				index := arrayContains(Dec, Text[6])
 				if index != -1 {

@@ -9,12 +9,14 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/joryulife/AutoMediaCheckPoint/pkg/GCP"
 	"github.com/unixpickle/wav"
 )
 
-func CutSoundFile(path string, CheckPoint []float64) {
+func CutSoundFile(name string, CheckPoint []float64) {
 	//CheckPoint := [10]float64{0,1,2,3,4,5}
-	a, err := wav.ReadSoundFile(path)
+	name2 := "../../lib/wav/" + name + ".wav"
+	a, err := wav.ReadSoundFile(name2)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -22,7 +24,7 @@ func CutSoundFile(path string, CheckPoint []float64) {
 	var start float64
 	var end float64
 
-	for i := 0; i < 6; i++ {
+	for i := 0; i < len(CheckPoint)-1; i++ {
 		b := a.Clone()
 		start = float64(CheckPoint[i])
 		end = float64(CheckPoint[i+1])
@@ -31,8 +33,9 @@ func CutSoundFile(path string, CheckPoint []float64) {
 			time.Duration(start*float64(time.Second)),
 			time.Duration(end*float64(time.Second)),
 		)
-		wav.WriteFile(b, "cut"+strconv.Itoa(i)+".wav")
-		uploadFile(os.Stdout, "cut"+strconv.Itoa(i)+".wav", "mystrage_19813", "cut"+strconv.Itoa(i)+".wav")
+		wav.WriteFile(b, "../../lib/wav/"+name+"cut"+strconv.Itoa(i)+".wav")
+		//uploadFile(os.Stdout, "cut"+strconv.Itoa(i)+".wav", "automediacheckpoint", "cut"+strconv.Itoa(i)+".wav")
+		GCP.UploadFile(os.Stdout, "../../lib/wav/"+name+"cut"+strconv.Itoa(i)+".wav", "automediacheckpoint", name+"cut"+strconv.Itoa(i)+".wav")
 	}
 }
 
