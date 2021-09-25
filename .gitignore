@@ -1,1 +1,3 @@
 lib/*.json
+lib/movie/*.mp4
+lib/wav/*.wav
