@@ -242,7 +242,7 @@ func main() {
 			CheckPoint = StringTime.StringToTime(timeString)
 			fmt.Println(CheckPoint)
 			apath, _ := filepath.Abs("../../lib/time/" + inputTimeSource.Selected)
-			setTimeSourceMessage.Text = "Set file : " + apath
+			setTimeSourceMessage.Text = "Set file : " + inputTimeSource.Selected
 			setTimeSourceMessage.Refresh()
 			log.Println(apath)
 			fp.Close()
@@ -257,11 +257,27 @@ func main() {
 	outputContent := widget.NewMultiLineEntry()
 	outputContent.SetPlaceHolder("time line")
 
+	progress := widget.NewProgressBar()
+
 	outputButton := widget.NewButton("MAKE INDEX", func() {
+		lss := len(CheckPoint)
+		ls := CheckPoint[lss-1]
+		maxSecond := ls * 2 / 9
+		progress.Max = maxSecond
 		if setSourceStatus == 0 && setTimeSourceStatus == false {
 			outputContent.Text = "No Correct Source : MovieFile OR TimeFile !!"
 			outputContent.Refresh()
 		} else if setSourceStatus == 1 {
+			go func() {
+				for i := 0.0; i <= maxSecond; i++ {
+					time.Sleep(1 * time.Second)
+					log.Println(progress.Value)
+					progress.SetValue(i)
+					if progress.Value == maxSecond {
+						break
+					}
+				}
+			}()
 			name := inputTimeSource.Selected[:strings.Index(inputTimeSource.Selected, ".txt")]
 			movie.MtoW(name)
 			sound.CutSoundFile(name, CheckPoint)
@@ -286,8 +302,19 @@ func main() {
 			}
 
 			outputContent.Text = output
+			progress.SetValue(maxSecond)
 			outputContent.Refresh()
 		} else {
+			go func() {
+				for i := 0.0; i <= maxSecond; i++ {
+					time.Sleep(1 * time.Second)
+					log.Println(progress.Value)
+					progress.SetValue(i)
+					if progress.Value == maxSecond {
+						break
+					}
+				}
+			}()
 			name := strings.Trim(inputTimeSource.Selected, ".txt")
 			movie.DlFromYT(inputFileSource.Text, name)
 			sound.CutSoundFile(name, CheckPoint)
@@ -312,13 +339,9 @@ func main() {
 			}
 
 			outputContent.Text = output
+			progress.SetValue(maxSecond)
 			outputContent.Refresh()
 		}
-	})
-
-	copyButton := widget.NewButton("copy", func() {
-		clipboard.WriteAll(outputContent.Text)
-		log.Println(outputContent.Text)
 	})
 
 	sourceContent := container.NewVBox(
@@ -327,7 +350,13 @@ func main() {
 		timeSourceContent,
 		setTimeSourceMessage,
 		outputButton,
+		progress,
 	)
+
+	copyButton := widget.NewButton("copy", func() {
+		clipboard.WriteAll(outputContent.Text)
+		log.Println(outputContent.Text)
+	})
 
 	outputtab := container.New(layout.NewBorderLayout(sourceContent, copyButton, nil, nil), sourceContent, outputContent, copyButton)
 
