@@ -41,8 +41,8 @@ func ReturnKeyWords(texts []string) [][]string {
 	CreateKOD(Dec, BoW, KeyOfDj)
 	for i := range texts {
 		DecOut := make([]string, 0)
-		s = OutKeyWordOfD(Dec, KeyOfDj, i, 5)
-		for j := 0; j < len(s); j++ {
+		s = OutKeyWordOfD(Dec, KeyOfDj, i, 6)
+		for j := 1; j < len(s); j++ {
 			DecOut = append(DecOut, Dec[s[j]])
 		}
 		log.Println(s, DecOut)
