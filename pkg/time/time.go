@@ -32,7 +32,6 @@ func StringToTime(timeText string) []float64 {
 	var CheckPoint []float64
 	timeText = strings.TrimRight(timeText, "\n")
 	timeLine := strings.Split(timeText, "\n")
-	log.Println(timeLine)
 	for _, s := range timeLine {
 		var hs, ms, ss string
 		var hi, mi, si int

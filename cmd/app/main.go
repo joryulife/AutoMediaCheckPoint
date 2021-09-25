@@ -70,6 +70,7 @@ func main() {
 	//##############################記録処理##############################
 	var fileNameSet bool
 	fileNameSet = false
+
 	recordFileMessage := widget.NewLabel("Enter filename")
 	inputTimeFileName := widget.NewEntry()
 	inputTimeFileName.SetPlaceHolder("Enter FileName : Don't need .txt")
@@ -181,12 +182,14 @@ func main() {
 	setSourceStatus := 0
 	setSourceMessage := widget.NewLabel("No Video Sources")
 	allsorcefile := dirwalk("../../lib/movie")
+
 	inputFileLocalSource := widget.NewSelect(allsorcefile, func(value string) {
 		setSourceStatus = 1
 		setSourceMessage.Text = "Select Local : " + value
 		setSourceMessage.Refresh()
 	})
 	inputFileLocalSource.PlaceHolder = "By Local"
+
 	inputFileSource := widget.NewEntry()
 	inputFileSource.SetPlaceHolder("Enter Source URL")
 	inputFileSource.OnChanged = func(value string) {
@@ -210,13 +213,18 @@ func main() {
 	})
 	sourceFiles := container.NewVBox(inputFileLocalSource, inputFileSource)
 	sourceFileContent := container.New(layout.NewBorderLayout(nil, nil, nil, sourceFileCheckButton), sourceFiles, sourceFileCheckButton)
+
 	alltimefile := dirwalk("../../lib/time")
 	inputTimeSource := widget.NewSelect(alltimefile, func(value string) {
 		log.Println(value)
 	})
+
 	setTimeSourceMessage := widget.NewLabel("No Sources")
+
 	var CheckPoint []float64
+	var CheckPointSlice []string
 	setTimeSourceStatus := false
+
 	timeSourceCheckButton := widget.NewButton("Check", func() {
 		fp, err := os.Open("../../lib/time/" + inputTimeSource.Selected)
 		if err != nil {
@@ -229,6 +237,7 @@ func main() {
 			scanner := bufio.NewScanner(fp)
 			for scanner.Scan() {
 				timeString += scanner.Text() + "\n"
+				CheckPointSlice = append(CheckPointSlice, scanner.Text())
 			}
 			CheckPoint = StringTime.StringToTime(timeString)
 			fmt.Println(CheckPoint)
@@ -243,39 +252,70 @@ func main() {
 	timeSourceContent := container.New(layout.NewBorderLayout(nil, nil, nil, timeSourceCheckButton), inputTimeSource, timeSourceCheckButton)
 
 	gs := "gs://automediacheckpoint/"
+	var texts []string
 
 	outputContent := widget.NewMultiLineEntry()
 	outputContent.SetPlaceHolder("time line")
-	var texts []string
+
 	outputButton := widget.NewButton("MAKE INDEX", func() {
 		if setSourceStatus == 0 && setTimeSourceStatus == false {
 			outputContent.Text = "No Correct Source : MovieFile OR TimeFile !!"
 			outputContent.Refresh()
 		} else if setSourceStatus == 1 {
 			name := inputTimeSource.Selected[:strings.Index(inputTimeSource.Selected, ".txt")]
-			log.Printf("name : %s", name)
 			movie.MtoW(name)
 			sound.CutSoundFile(name, CheckPoint)
+
 			for i := 0; i < len(CheckPoint)-1; i++ {
 				TextCut := GCP.Captionasync(gs + name + "cut" + strconv.Itoa(i) + ".wav")
 				fmt.Println(TextCut)
 				texts = append(texts, TextCut)
 			}
-			log.Println(texts)
-			word.ReturnKeyWords(texts)
+
+			s := word.ReturnKeyWords(texts)
+			output := ""
+			var keyWords string
+
+			for i := 0; i < len(s); i++ {
+				keyWords = ""
+				log.Println(s[i])
+				for j := 0; j < len(s[i]); j++ {
+					keyWords += s[i][j] + " "
+				}
+				output += CheckPointSlice[i] + " " + keyWords + "\n"
+			}
+
+			outputContent.Text = output
+			outputContent.Refresh()
 		} else {
 			name := strings.Trim(inputTimeSource.Selected, ".txt")
 			movie.DlFromYT(inputFileSource.Text, name)
 			sound.CutSoundFile(name, CheckPoint)
+
 			for i := 0; i < len(CheckPoint)-1; i++ {
 				TextCut := GCP.Captionasync(gs + name + "cut" + strconv.Itoa(i) + ".wav")
 				fmt.Println(TextCut)
 				texts = append(texts, TextCut)
 			}
-			log.Println(texts)
-			word.ReturnKeyWords(texts)
+
+			s := word.ReturnKeyWords(texts)
+			output := ""
+			var keyWords string
+
+			for i := 0; i < len(s); i++ {
+				keyWords = ""
+				log.Println(s[i])
+				for j := 0; j < len(s[i]); j++ {
+					keyWords += s[i][j] + " "
+				}
+				output += CheckPointSlice[i] + " " + keyWords + "\n"
+			}
+
+			outputContent.Text = output
+			outputContent.Refresh()
 		}
 	})
+
 	copyButton := widget.NewButton("copy", func() {
 		clipboard.WriteAll(outputContent.Text)
 		log.Println(outputContent.Text)
@@ -288,6 +328,7 @@ func main() {
 		setTimeSourceMessage,
 		outputButton,
 	)
+
 	outputtab := container.New(layout.NewBorderLayout(sourceContent, copyButton, nil, nil), sourceContent, outputContent, copyButton)
 
 	//##############################統合処理##############################
@@ -321,29 +362,3 @@ func dirwalk(dir string) []string {
 
 	return paths
 }
-
-/*import (
-	"flag"
-	"fmt"
-	"strconv"
-	"strings"
-
-	"github.com/joryulife/AutoMediaCheckPoint/pkg/GCP"
-	"github.com/joryulife/AutoMediaCheckPoint/pkg/sound"
-)
-
-func main() {
-	path := "../lib/yuki_mono_VM00_VF00_0750.wav"
-	filename := strings.Trim(path[8:], ".wav")
-	gs := "gs://automediacheckpoint/"
-	CheckPoint := []float64{0, 69, 138, 207, 276, 345}
-	//length := len(CheckPoint) - 1
-	//capacity := len(CheckPoint) - 1
-	//TextCut := make([]string, length, capacity)
-	sound.CutSoundFile(path, CheckPoint)
-	//TextCut[0] = captionasync(gs + filename + "cut" + strconv.Itoa(0) + ".wav")
-	for i := 0; i < len(CheckPoint)-1; i++ {
-		TextCut := GCP.Captionasync(gs + filename + "cut" + strconv.Itoa(i) + ".wav")
-		fmt.Println(TextCut)
-	}
-}*/

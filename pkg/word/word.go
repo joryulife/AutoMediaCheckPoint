@@ -9,10 +9,12 @@ import (
 	"github.com/bluele/mecab-golang"
 )
 
-func ReturnKeyWords(texts []string) {
+func ReturnKeyWords(texts []string) [][]string {
 	n := len(texts)
 	fmt.Println(n)
 	var Dec []string
+	outDec := make([][]string, n)
+	var s []int
 	D := texts
 	BoW := make([][]int, n)
 	for i := 0; i < n; i++ {
@@ -38,9 +40,17 @@ func ReturnKeyWords(texts []string) {
 	}
 	CreateKOD(Dec, BoW, KeyOfDj)
 	for i := range texts {
-		s := OutKeyWordOfD(Dec, KeyOfDj, i, 5)
-		log.Println(s)
+		DecOut := make([]string, 0)
+		s = OutKeyWordOfD(Dec, KeyOfDj, i, 5)
+		for j := 0; j < len(s); j++ {
+			DecOut = append(DecOut, Dec[s[j]])
+		}
+		log.Println(s, DecOut)
+		outDec[i] = DecOut
 	}
+	log.Println("outDec : ")
+	log.Println(outDec)
+	return outDec
 }
 
 func CreateKOD(Dec []string, BoW [][]int, KeyOfDj [][]float64) {
