@@ -259,6 +259,7 @@ func main() {
 	outputContent.SetPlaceHolder("time line")
 
 	progress := widget.NewProgressBar()
+	progress.SetValue(1)
 
 	outputButton := widget.NewButton("MAKE INDEX", func() {
 		lss := len(CheckPoint)
