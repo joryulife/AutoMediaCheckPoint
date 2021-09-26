@@ -10,6 +10,7 @@ import (
 )
 
 func ReturnKeyWords(texts []string) [][]string {
+	log.Println("RetrunKeyWord IN!!")
 	n := len(texts)
 	fmt.Println(n)
 	var Dec []string
@@ -18,11 +19,11 @@ func ReturnKeyWords(texts []string) [][]string {
 	D := texts
 	BoW := make([][]int, n)
 	for i := 0; i < n; i++ {
-		BoW[i] = make([]int, 10000)
+		BoW[i] = make([]int, 100000)
 	}
 	KeyOfDj := make([][]float64, n)
 	for i := range KeyOfDj {
-		KeyOfDj[i] = make([]float64, 10000)
+		KeyOfDj[i] = make([]float64, 100000)
 	}
 	lastindex := 0
 	m, err := mecab.New("-Owakati")
@@ -34,11 +35,15 @@ func ReturnKeyWords(texts []string) [][]string {
 		text := D[i]
 		Dec = parseToDec(m, text, Dec, BoW[i], &lastindex)
 	}
+	log.Println("DEC : ")
+	log.Println(Dec)
 
 	if err != nil {
 		panic(err)
 	}
+	log.Println("B CreateKOD")
 	CreateKOD(Dec, BoW, KeyOfDj)
+	log.Println("A CreateKOD")
 	for i := range texts {
 		DecOut := make([]string, 0)
 		s = OutKeyWordOfD(Dec, KeyOfDj, i, 6)
@@ -167,7 +172,7 @@ func Tf(t string, Dec []string, BoW [][]int, Dj int) float64 {
 	} else {
 		return 0
 	}
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 100000; i++ {
 		n += BoW[Dj][i]
 	}
 	return float64(count) / float64(n)

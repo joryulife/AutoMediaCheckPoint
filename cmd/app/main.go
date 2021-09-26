@@ -18,6 +18,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/atotto/clipboard"
 	"github.com/joryulife/AutoMediaCheckPoint/pkg/GCP"
+	Toyoutube "github.com/joryulife/AutoMediaCheckPoint/pkg/Youtube"
 	"github.com/joryulife/AutoMediaCheckPoint/pkg/movie"
 	"github.com/joryulife/AutoMediaCheckPoint/pkg/sound"
 	StringTime "github.com/joryulife/AutoMediaCheckPoint/pkg/time"
@@ -264,6 +265,7 @@ func main() {
 		ls := CheckPoint[lss-1]
 		maxSecond := ls * 2 / 9
 		progress.Max = maxSecond
+		log.Printf("MAXSECOND : %v", maxSecond)
 		if setSourceStatus == 0 && setTimeSourceStatus == false {
 			outputContent.Text = "No Correct Source : MovieFile OR TimeFile !!"
 			outputContent.Refresh()
@@ -271,7 +273,7 @@ func main() {
 			go func() {
 				for i := 0.0; i <= maxSecond; i++ {
 					time.Sleep(1 * time.Second)
-					log.Println(progress.Value)
+					//log.Println(progress.Value)
 					progress.SetValue(i)
 					if progress.Value == maxSecond {
 						break
@@ -308,7 +310,7 @@ func main() {
 			go func() {
 				for i := 0.0; i <= maxSecond; i++ {
 					time.Sleep(1 * time.Second)
-					log.Println(progress.Value)
+					//log.Println(progress.Value)
 					progress.SetValue(i)
 					if progress.Value == maxSecond {
 						break
@@ -357,8 +359,15 @@ func main() {
 		clipboard.WriteAll(outputContent.Text)
 		log.Println(outputContent.Text)
 	})
+	upButton := widget.NewButton("UP", func() {
+		if setSourceStatus == 2 {
+			url := inputFileSource.Text
+			Toyoutube.Update(url)
+		}
+	})
+	Button := container.NewHBox(copyButton, upButton)
 
-	outputtab := container.New(layout.NewBorderLayout(sourceContent, copyButton, nil, nil), sourceContent, outputContent, copyButton)
+	outputtab := container.New(layout.NewBorderLayout(sourceContent, Button, nil, nil), sourceContent, outputContent, Button)
 
 	//##############################統合処理##############################
 
